@@ -1,0 +1,59 @@
+---
+- hosts: "{{ target }}"
+  become: true
+  vars_prompt:
+    - name: "target"
+      prompt: "Which host or group would you like to assign"
+      private: no
+      default: "Default: empty"
+    - name: "nodeName"
+      prompt: "Which node name would you like to deploy"
+      private: no
+      default: "Default: empty"
+    - name: "foundation_version"
+      prompt: "Which foundation version would you like to deploy"
+      private: no
+      default: "Default: empty"
+  tasks:
+    - name: "Create directory of {{ nodeName }}"
+      file:
+        dest: "{{ item }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: 0755
+        state: directory
+      with_items:
+        - "{{ log_home }}/{{ nodeName }}"
+        - "{{ app_home }}/{{ nodeName }}"
+
+    - name: "Get the process ID of supervisor"
+      shell: "ps -ef | grep supervisor | grep -v grep | awk '{print $2}'"
+      register: pid
+
+    - name: "Stop {{ nodeName }} service from supervisor"
+      supervisorctl:
+        name: "{{ nodeName }}"
+        state: stopped
+      when: pid.stdout | length > 0
+      ignore_errors: True
+        
+    - name: "Unarchive foundation data on the remote machine"
+      unarchive:
+        src: "/opt/data_{{foundation_version}}.tar.gz"
+        dest: "{{ app_home }}/{{ nodeName }}"
+        remote_src: yes
+        group: pchuant
+        owner: pchuant
+       
+    #- name: "Copy foundation data to platon data"
+    #  copy:
+    #    src: "/opt/data"
+    #    dest: "{{ app_home }}/{{ nodeName }}"
+    #    owner: "{{ app_user }}"
+    #    group: "{{ app_user }}"
+    #    remote_src: yes
+     
+    - name: "Start {{ nodeName }} service from supervisor"
+      supervisorctl:
+        name: "{{ nodeName }}"
+        state: started

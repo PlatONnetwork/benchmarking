@@ -1,0 +1,8 @@
+---
+    - name: "Configure vimrc for {{ username }}"
+      template:
+        src: "/etc/ansible/files/common/vimrc"
+        dest: "/home/{{ username }}/.vimrc"
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: 0644

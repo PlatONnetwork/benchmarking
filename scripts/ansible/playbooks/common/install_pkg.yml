@@ -1,0 +1,11 @@
+---
+    - name: "Install iftop and so on ..."
+      package:
+        name:
+          - iftop
+          - htop
+          - sysstat
+          - lrzsz
+          - libgmpxx4ldbl
+          - vim
+        state: present

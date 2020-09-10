@@ -1,0 +1,45 @@
+---
+- hosts: "{{ target }}"
+  become: true
+  vars_prompt:
+    - name: "target"
+      prompt: "Which host or group would you like to assign"
+      private: no
+      default: "Default: empty"
+  tasks:
+    - name: "Get jdk version"
+      shell: "{{ app_home }}/jdk/bin/javah -version | awk -F'\"' '{print $2}'"
+      register: version
+
+    - name: "Stop if JDK exists"
+      fail:
+        msg: "The lastest version of jdk is installed"
+      when: version.stdout == jdk_version
+
+    - name: "Download JDK package and unarchive"
+      unarchive:
+        src: "{{ repo_url }}/third-tools/{{ jdk_source }}"
+        dest: "{{ app_home }}"
+        owner: root
+        group: root
+        remote_src: yes
+
+    - name: "Create JDK link"
+      file:
+        src: "{{ app_home }}/jdk{{ jdk_version }}"
+        dest: "{{ app_home }}/jdk"
+        state: link
+
+    - name: "Create Java link"
+      file:
+        src: "{{ app_home }}/jdk{{ jdk_version }}/bin/java"
+        dest: "/usr/sbin/java"
+        state: link
+
+    - name: "Set the env for jdk"
+      template:
+        src: "/etc/ansible/files/common/jdk.sh.j2"
+        dest: "/etc/profile.d/jdk.sh"
+        owner: root
+        group: root
+        mode: 0644

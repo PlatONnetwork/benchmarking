@@ -1,0 +1,11 @@
+---
+- hosts: "{{ target }}"
+  become: true
+  vars_prompt:
+    - name: "target"
+      prompt: "Which host or group would you like to assign"
+      private: no
+      default: "Default: empty"
+  tasks:
+    - name: "stop generator"
+      shell: "{{ node_home }}/eosio/bin/stopgenerator.sh"

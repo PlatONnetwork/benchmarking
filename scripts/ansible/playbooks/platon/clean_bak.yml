@@ -1,0 +1,57 @@
+---
+- hosts: node
+  gather_facts: no
+  tasks:
+
+    - name: "Get the process ID of supervisor"
+      shell: ps -ef | grep supervisor | grep -v grep | awk '{print $2}'
+      register: pid
+
+    - name: "Stop platon service from supervisor"
+      supervisorctl:
+        name: "{{ node_name }}"
+        state: stopped
+      when: pid.stdout | length > 0
+      ignore_errors: True
+
+    - name: "Delete {{ node_name }} data directory"
+      file:
+        path: "{{ node_home }}/data/platon"
+        state: absent
+
+    - name: "Delete {{ node_name }} logbak directory"
+      file:
+        path: "{{ node_log_home }}"
+        state: absent
+      become: true
+
+    - name: "Delete {{ node_name }} platon.log"
+      file:
+        path: "{{ node_home }}/platon.log"
+        state: absent
+
+    - name: "Create {{ node_name }} logbak"
+      file:
+        path: "{{ node_log_home }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: 0755
+        state: directory
+      become: true
+
+    - name: "Find old {{ node_name }} binary"
+      find:
+        paths: "{{ node_bin_home }}"
+        file_type: file
+        use_regex: yes
+        patterns:
+          - 'platon_.*'
+          - 'splaton_.*'
+      register: binary
+
+    - name: "Reserve newest 2 {{ node_name }} binaries"
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items: "{{ (binary.files | sort(attribute='ctime', reverse=True))[2:] | list }}"
+      become: true

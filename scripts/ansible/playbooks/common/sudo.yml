@@ -1,0 +1,26 @@
+---
+- hosts: "{{ target }}"
+  become: true
+  gather_facts: false
+  vars_prompt:
+    - name: "target"
+      prompt: "Which host or group would you like to assign"
+      private: no
+      default: "Default: empty"
+  tasks:
+    - name: "Create the /etc/sudoers.d/{{ ansible_ssh_user }}"
+      file:
+        path: "/etc/sudoers.d/{{ ansible_ssh_user }}"
+        state: touch
+        mode: 0644
+        owner: root
+        group: root
+    - name: "validate the /etc/sudoers/{{ ansible_ssh_user }} file before saving"
+      lineinfile:
+        dest: "/etc/sudoers.d/{{ ansible_ssh_user }}"
+        state: present
+        line: '{{item }}'
+        validate: 'visudo -cf %s'
+      with_items:
+           - "{{ ansible_ssh_user }} ALL=(ALL) NOPASSWD: ALL"
+

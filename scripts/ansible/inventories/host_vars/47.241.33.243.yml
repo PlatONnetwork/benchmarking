@@ -1,0 +1,1 @@
+node_extra_args: --metrics --metrics.influxdb --metrics.influxdb.database "spec_node01" --metrics.influxdb.endpoint "http://149.129.130.186:8086" --metrics.influxdb.username "admin" --metrics.influxdb.password "admin" --metrics.influxdb.host.tag "spec_node01" --ws --wsorigins * --wsaddr 0.0.0.0 --wsport 6788 --wsapi platon,debug,net,web3,txpool,metrics --db.nogc

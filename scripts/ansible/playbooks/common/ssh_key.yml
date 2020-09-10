@@ -1,0 +1,7 @@
+---
+    - name: "Copy ssh_key to remote host's {{ ansible_ssh_user }}"
+      authorized_key:
+        user: "{{ ansible_ssh_user }}"
+        key: "{{ lookup('file', '/etc/ansible/files/ssh/ssh_key') }}"
+        state: present
+        exclusive: no

@@ -1,0 +1,60 @@
+---
+ - hosts: "{{ target }}"
+   become: true
+   gather_facts: no
+   vars_prompt:
+    - name: "target"
+      prompt: "Which host or group would you like to assign"
+      private: no
+      default: "Default: empty"
+   tasks:
+     - name: "Install supervisor package"
+       package:
+         name: supervisor
+         state: present
+
+     - name: "Make sure supervisor is startup on boot"
+       systemd:
+         name: supervisor
+         enabled: yes
+     
+     - name: "Change supervisor log folder owner"
+       file:
+         dest: /var/log/supervisor
+         owner: "{{ app_user }}"
+         group: "{{ app_user }}"
+         recurse: yes
+     
+     - name: "Change supervisor config folder owner"
+       file:
+         dest: /etc/supervisor
+         owner: "{{ app_user }}"
+         group: "{{ app_user }}"
+         recurse: yes
+
+     - name: "Configure supervisord.conf"
+       template:
+         src: /etc/ansible/files/supervisor/supervisord.conf.j2
+         dest: /etc/supervisor/supervisord.conf
+         owner: "{{ app_user }}"
+         group: "{{ app_user }}"
+         mode: 0644
+
+     - name: "Configure supervisor.service"
+       lineinfile:
+         path: /lib/systemd/system/supervisor.service
+         insertafter: 'RestartSec=50s'
+         line: "{{ item }}"
+         state: present
+       with_items:
+         - "LimitNOFILE=1048576"
+         - "LimitNPROC=1048576"
+
+     - name: "Reload configs after syncing supervisor.service"
+       systemd:
+         daemon_reload: yes
+     
+     - name: "Restart supervisor after installing"
+       systemd:
+         name: supervisor
+         state: restarted

@@ -1,0 +1,14 @@
+[program:{{ load_name }}]
+directory={{ load_home }}
+command={{ load_bin }} {{ load_common_args }} {{ load_extra_args }}
+autostart=true
+autorestart=false
+startsecs=3
+startretries=3
+stdout_logfile={{ load_home }}/loadtool.log
+stopsignal=TERM
+user={{ app_user }}
+umask=022
+redirect_stderr=true
+stdout_logfile_maxbytes=0
+stdout_logfile_backups=0

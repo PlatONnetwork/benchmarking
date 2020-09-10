@@ -1,0 +1,33 @@
+---
+- hosts: "{{ target }}"
+  become: true
+  gather_facts: false
+  vars_prompt:
+    - name: "target"
+      prompt: "Which host or group would you like to assign"
+      private: no
+      default: "Default: empty"
+  tasks:
+    - name: "Configure logrotate for platon node"
+      template:
+        src: /etc/ansible/files/logrotate/platon.j2
+        dest: /etc/logrotate.d/{{ node_name }}
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: "Configure cron for platon node"
+      template:
+        src: /etc/ansible/files/cron/platon.j2
+        dest: /etc/cron.d/{{ node_name }}
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: "Create logbak directory"
+      file:
+        path: "{{ node_log_home }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: 0755

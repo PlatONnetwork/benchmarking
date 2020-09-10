@@ -1,0 +1,76 @@
+"---------"
+" General "
+"---------"
+set history=10000
+
+filetype off
+filetype indent on
+filetype plugin on
+filetype plugin indent on
+
+set backspace=eol,start,indent
+set nocompatible
+set autoread
+set shortmess=atI
+
+set nobackup
+set noswapfile
+
+set paste
+set mouse-=a
+set selection=exclusive    
+set selectmode=mouse,key
+
+set noerrorbells
+set novisualbell  
+set t_vb=  
+set tm=500 
+
+"--------"
+" Format "
+"--------"
+nmap <F2> :set nonumber!<CR>
+set pastetoggle=<F11>
+
+set showmatch
+set mat=2
+
+set nohlsearch
+set ignorecase
+set incsearch
+set smartcase
+
+set tabstop=4
+set shiftwidth=4
+set expandtab
+set softtabstop=4
+
+set autoindent
+set cindent
+set smartindent
+
+"--------"
+" Status "
+"--------"
+set ruler
+set showcmd
+
+set so=7
+
+"-------"
+" Color "
+"-------"
+syntax enable
+syntax on
+set t_Co=256
+
+"-------------"
+" File Encode "
+"-------------"
+set encoding=utf-8
+set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
+
+set ffs=unix,dos,mac
+
+set formatoptions+=m  
+set formatoptions+=B

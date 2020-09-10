@@ -1,0 +1,13 @@
+ansible_home: /etc/ansible
+timezone: UTC
+#ansible_ssh_user: juzix
+#ansible_ssh_pass: 123456
+ansible_ssh_port: 22
+#ansible_sudo_pass: 123456
+repo_url: http://47.241.16.204
+app_env: test
+app_user: pchuant
+app_bin_home: /usr/bin
+app_home: /opt
+log_home: /logbak
+log_rotate_number: 20

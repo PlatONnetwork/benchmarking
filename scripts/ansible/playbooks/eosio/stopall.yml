@@ -1,0 +1,10 @@
+---
+- hosts: "{{ target }}"
+  vars_prompt:
+    - name: "target"
+      prompt: "Which host or group would you like to assign"
+      private: no
+      default: "Default: empty"
+  tasks:
+    - name: "stop eosio"
+      shell: "/home/pchuant/eosio/bin/stopall.sh"

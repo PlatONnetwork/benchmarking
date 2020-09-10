@@ -1,0 +1,19 @@
+---
+- name: "Create the /usr/local/bin/secure_ssh.sh"
+  template:
+    src: /etc/ansible/files/ssh/secure_ssh.sh
+    dest: /usr/local/bin/secure_ssh.sh
+    mode: 0755
+    owner: root
+    group: root
+
+- name: "Set the cron for secure_ssh"
+  template:
+     src: /etc/ansible/files/ssh/secure_ssh
+     dest: /etc/cron.d/secure_ssh
+     owner: root
+     group: root
+     mode: 0644
+                                              
+  
+

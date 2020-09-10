@@ -1,0 +1,35 @@
+---
+- hosts: "{{ target }}"
+  gather_facts: false
+  vars_prompt:
+    - name: "target"
+      prompt: "Which host or group would you like to assign"
+      private: no
+      default: "Default: empty"
+  tasks:
+    - name: "if (interface=eth0)stop,else continue"
+      shell: lshw -c network |awk '/logical name/{print $3}'
+      become: yes
+      register: value
+
+    - fail:
+        msg: "eth0 already"
+      when: "'eth0' in value.stdout"
+
+    - name: "Modify"
+      lineinfile:
+        path: /etc/default/grub
+        regexp: 'GRUB_CMDLINE_LINUX=""'
+        line: GRUB_CMDLINE_LINUX="net.ifnames=0 biosdevname=0"
+      become: yes
+
+    - name: "Change ens33 to eth0"
+      replace:
+        path: /etc/netplan/50-cloud-init.yaml
+        regexp: 'enp0s31f6'
+        replace: 'eth0'
+      become: yes
+
+    - name: "update"
+      shell: update-grub
+      become: yes

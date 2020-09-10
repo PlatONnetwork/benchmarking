@@ -1,0 +1,14 @@
+[program:{{ node_name }}]
+directory={{ node_home }}
+command={{ node_bin }} {{ node_common_args }} {{ node_extra_args }}
+autostart=false
+autorestart=false
+startsecs=3
+startretries=3
+stdout_logfile={{ node_home }}/platon.log
+stopsignal=TERM
+user={{ app_user }}
+umask=022
+redirect_stderr=true
+stdout_logfile_maxbytes=0
+stdout_logfile_backups=0

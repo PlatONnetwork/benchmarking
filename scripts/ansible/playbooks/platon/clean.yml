@@ -1,0 +1,62 @@
+---
+- hosts: "{{ target }}"
+  gather_facts: no
+  vars_prompt:
+    - name: "target"
+      prompt: "Which host or group would you like to assign"
+      private: no
+      default: "Default: empty"
+    - name: "nodeName"
+      prompt: "Which node name would you like to clean"
+      private: no
+      default: "Default: empty"
+    - name: "confirm"
+      prompt: "Are you sure you want to clean the data of platon"
+      private: no
+      default: "no"
+  tasks:
+    - name: "Confirm to action"
+      fail:
+        msg: "You must type yes to confirm the action!"
+      when: confirm != 'yes'
+
+    - name: "Get the process ID of supervisor"
+      shell: ps -ef | grep supervisor | grep -v grep | awk '{print $2}'
+      register: pid
+
+    - name: "Stop platon service from supervisor"
+      supervisorctl:
+        name: "{{ nodeName }}"
+        state: stopped
+      when: pid.stdout | length > 0
+      ignore_errors: True
+
+    - name: "Delete {{ nodeName }} data directory"
+      file:
+        path: "{{ app_home }}/{{ nodeName }}/data"
+        state: absent
+
+    - name: "Delete {{ nodeName }} data directory"
+      file:
+        path: "{{ app_home }}/{{ nodeName }}/node"
+        state: absent
+
+    - name: "Delete {{ nodeName }} logbak directory"
+      file:
+        path: "{{ log_home }}/{{ nodeName }}"
+        state: absent
+      become: true
+
+    - name: "Delete {{ nodeName }} platon.log"
+      file:
+        path: "{{ app_home }}/{{ nodeName }}/platon.log"
+        state: absent
+
+    - name: "Create {{ nodeName }} logbak"
+      file:
+        path: "{{ log_home }}/{{ nodeName }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: 0755
+        state: directory
+      become: true

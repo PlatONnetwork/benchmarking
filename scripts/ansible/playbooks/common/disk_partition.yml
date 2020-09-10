@@ -1,0 +1,58 @@
+---
+- hosts: "{{ target }}"
+  become: true
+  gather_facts: false
+  vars_prompt:
+    - name: "target"
+      prompt: "Which host or group would you like to assign"
+      private: no
+      default: "Default: empty"
+  tasks:
+    - name: "Get disk info"
+      shell: fdisk -l | grep 'Disk /dev/vdb' | awk '$3==100 {print $2}' | sed 's/://g'
+      register: disk
+
+    - name: "Stop the operations below if disk not exists"
+      fail:
+        msg: "No matching disk found"
+      when: disk.stdout | length == 0
+
+    - name: "Disk partition actions"
+      block:
+        - name: "Get disk partition info"
+          shell: fdisk -l | egrep "^{{ disk.stdout }}" | awk '{print $1}'
+          register: partition
+
+        - name: "Stop the operations below if disk partition exists"
+          fail:
+            msg: "Disk partition exists"
+          when: partition.stdout | length > 0
+
+        - name: "Mark GPT label"
+          shell: parted -s "{{ disk.stdout }}" mklabel gpt
+
+        - name: "Partition disk"
+          shell: parted -s "{{ disk.stdout }}" mkpart primary 0% 100%
+
+        - name: "Get data disk partition info"
+          shell: fdisk -l | egrep "^{{ disk.stdout }}" | awk '{print $1}'
+          register: result
+
+        - name: "Format partition"
+          shell: mkfs.ext4 "{{ result.stdout }}"
+
+        - name: "Get uuid of partition"
+          shell: blkid -s UUID -o value "{{ result.stdout }}"
+          register: uuid
+          tags:
+            - fstab
+
+        - name: "Add mount to /etc/fstab"
+          lineinfile:
+            path: /etc/fstab
+            line: 'UUID={{ uuid.stdout }}   /opt    ext4    defaults,discard    0 0'
+          tags:
+            - fstab
+
+        - name: "Mount data disk"
+          shell: mount -a

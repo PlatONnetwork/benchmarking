@@ -1,0 +1,66 @@
+---
+- hosts: "{{ groups[target] | random }}"
+  tasks:
+    - name: "Generate timestamp"
+      shell: date +%Y%m%d%H%M
+      register: backup_date
+
+    - name: "Install dependences for pip"
+      package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - python-pip
+      become: true
+
+    - name: "Install pip dependences"
+      pip:
+        name: "{{ item }}"
+      with_items:
+        - qiniu
+        - boto3
+      become: true
+    
+    - name: "Backup ansible configs and playbooks"
+      shell: zip -r /tmp/ansible_{{ backup_date.stdout }}.zip /etc/ansible
+
+    - name: "Archive and upload ansible files to S3"
+      block:
+        - name: "Archive elasticsearch snapshots"
+          archive:
+            path: "/etc/ansible"
+            dest: "/tmp/ansible_{{ backup_date.stdout }}.zip"
+
+        - name: "Upload to S3"
+          aws_s3:
+            aws_access_key: "{{ aws_access_key }}"
+            aws_secret_key: "{{ aws_secret_key }}"
+            bucket: "{{ aws_bucket_name }}"
+            src: "/tmp/ansible_{{ backup_date.stdout }}.zip"
+            object: "/backup/ansible/ansible_{{ backup_date.stdout }}.zip"
+            mode: put
+            permission: public-read
+
+        - name: "Delete ansible_{{ backup_date.stdout }}.zip"
+          file:
+            path: "/tmp/ansible_{{ backup_date.stdout }}.zip"
+            state: absent
+
+        - name: "List all archived files in S3"
+          aws_s3:
+            aws_access_key: "{{ aws_access_key }}"
+            aws_secret_key: "{{ aws_secret_key }}"
+            bucket: "{{ aws_bucket_name }}"
+            mode: list
+          register: archive_s3
+
+        - name: "Reserve the newest ansible archived files in S3"
+          aws_s3:
+            aws_access_key: "{{ aws_access_key }}"
+            aws_secret_key: "{{ aws_secret_key }}"
+            bucket: "{{ aws_bucket_name }}"
+            object: "{{ item }}"
+            mode: delobj
+          with_items: "{{ ((archive_s3.s3_keys | select('search', 'ansible')) | sort(reverse=True))[5:] | list }}"
+      tags:
+        - s3

@@ -1,0 +1,191 @@
+[node_mnsh]
+18.138.238.82	hostname=aws-sgp-vm-mnsh-001
+18.140.198.20	hostname=aws-sgp-vm-mnsh-002
+13.251.88.135	hostname=aws-sgp-vm-mnsh-003
+18.141.213.225	hostname=aws-sgp-vm-mnsh-004
+13.229.153.202	hostname=aws-sgp-vm-mnsh-005
+3.0.48.130		hostname=aws-sgp-vm-mnsh-006
+3.1.26.215		hostname=aws-sgp-vm-mnsh-007
+3.1.209.253		hostname=aws-sgp-vm-mnsh-008
+13.251.35.165	hostname=aws-sgp-vm-mnsh-009
+18.141.153.79	hostname=aws-sgp-vm-mnsh-010
+13.212.30.46	hostname=aws-sgp-vm-mnsh-011
+13.212.16.54	hostname=aws-sgp-vm-mnsh-012
+18.141.212.157	hostname=aws-sgp-vm-mnsh-013
+13.229.141.36	hostname=aws-sgp-vm-mnsh-014
+13.251.60.250	hostname=aws-sgp-vm-mnsh-015
+13.229.147.27	hostname=aws-sgp-vm-mnsh-016
+18.141.210.25	hostname=aws-sgp-vm-mnsh-017
+18.141.212.192	hostname=aws-sgp-vm-mnsh-018
+18.140.237.236	hostname=aws-sgp-vm-mnsh-019
+18.141.163.90	hostname=aws-sgp-vm-mnsh-020
+18.140.199.221	hostname=aws-sgp-vm-mnsh-021
+13.212.18.153	hostname=aws-sgp-vm-mnsh-022
+18.140.231.65	hostname=aws-sgp-vm-mnsh-023
+13.229.154.110	hostname=aws-sgp-vm-mnsh-024
+18.141.217.208	hostname=aws-sgp-vm-mnsh-025
+13.251.102.47	hostname=aws-sgp-vm-mnsh-026
+3.0.200.130		hostname=aws-sgp-vm-mnsh-027
+13.212.69.242	hostname=aws-sgp-vm-mnsh-028
+3.1.64.105		hostname=aws-sgp-vm-mnsh-029
+3.0.200.157		hostname=aws-sgp-vm-mnsh-030
+
+[node:children]
+qn
+hw
+bd
+
+[qn]
+147.139.32.138  hostname=qn-mum-vm-mns-001
+147.139.28.92   hostname=qn-mum-vm-mns-002
+147.139.7.250   hostname=qn-mum-vm-mns-003
+147.139.40.118  hostname=qn-mum-vm-mns-004
+147.139.7.84    hostname=qn-mum-vm-mns-005
+147.139.40.145  hostname=qn-mum-vm-mns-006
+47.91.94.20     hostname=qn-fkf-vm-mns-001
+47.91.92.138    hostname=qn-fkf-vm-mns-002
+47.254.129.82   hostname=qn-fkf-vm-mns-003
+47.254.129.148  hostname=qn-fkf-vm-mns-004
+47.254.134.48   hostname=qn-fkf-vm-mns-005
+161.117.191.146 hostname=qn-sgp-vm-mns-002
+47.241.16.45    hostname=qn-sgp-vm-mns-003
+47.241.19.130   hostname=qn-sgp-vm-mns-004
+47.241.15.143   hostname=qn-sgp-vm-mns-005
+161.117.231.152 hostname=qn-sgp-vm-mns-006
+47.74.67.229    hostname=qn-syd-vm-mns-001
+47.91.41.254    hostname=qn-syd-vm-mns-002
+47.74.69.37     hostname=qn-syd-vm-mns-003
+47.91.45.178    hostname=qn-syd-vm-mns-004
+47.74.69.57     hostname=qn-syd-vm-mns-005
+161.117.228.8	hostname=qn-sgp-vm-mns-007
+161.117.233.114 hostname=qn-sgp-vm-mns-008
+161.117.88.188  hostname=qn-sgp-vm-mns-009
+161.117.235.208 hostname=qn-sgp-vm-mns-010
+161.117.226.220 hostname=qn-sgp-vm-mns-011
+161.117.179.36  hostname=qn-sgp-vm-mns-012
+47.241.0.82 	hostname=qn-sgp-vm-mns-013
+161.117.89.135	hostname=qn-sgp-vm-mns-014
+161.117.83.219	hostname=qn-sgp-vm-mns-015
+
+[bd]
+154.85.33.109   hostname=bd-sgp-vm-mns-001
+154.85.33.110   hostname=bd-sgp-vm-mns-002
+154.85.33.128   hostname=bd-sgp-vm-mns-003
+154.85.33.86    hostname=bd-sgp-vm-mns-004
+154.85.33.120   hostname=bd-sgp-vm-mns-005
+154.85.33.137   hostname=bd-sgp-vm-mns-006
+154.85.33.132   hostname=bd-sgp-vm-mns-007
+154.85.33.138   hostname=bd-sgp-vm-mns-008
+154.85.33.129   hostname=bd-sgp-vm-mns-009
+154.85.33.148   hostname=bd-sgp-vm-mns-010
+154.85.33.156   hostname=bd-sgp-vm-mns-011
+154.85.33.153   hostname=bd-sgp-vm-mns-012
+154.85.33.143   hostname=bd-sgp-vm-mns-013
+154.85.33.180   hostname=bd-sgp-vm-mns-014
+
+[hw]
+119.8.170.192   hostname=hw-sgp-vm-mns-001
+114.119.190.95  hostname=hw-sgp-vm-mns-002
+159.138.89.74   hostname=hw-sgp-vm-mns-003
+159.138.108.229 hostname=hw-sgp-vm-mns-004
+114.119.180.80  hostname=hw-sgp-vm-mns-005
+114.119.185.29  hostname=hw-sgp-vm-mns-006
+159.138.93.74   hostname=hw-sgp-vm-mns-007
+119.8.171.102   hostname=hw-sgp-vm-mns-008
+159.138.99.118  hostname=hw-sgp-vm-mns-009
+114.119.185.126 hostname=hw-sgp-vm-mns-010
+114.119.182.50  hostname=hw-sgp-vm-mns-011
+
+[aws]
+15.207.176.99   hostname=aws-mum-vm-mns-001
+15.207.140.200  hostname=aws-mum-vm-mns-002
+15.206.249.219  hostname=aws-mum-vm-mns-003
+13.235.252.214  hostname=aws-mum-vm-mns-004
+15.207.121.143  hostname=aws-mum-vm-mns-005
+13.234.11.130   hostname=aws-mum-vm-mns-006
+15.206.213.210  hostname=aws-mum-vm-mns-007
+13.235.255.44   hostname=aws-mum-vm-mns-008
+15.206.204.235  hostname=aws-mum-vm-mns-009
+13.234.12.70    hostname=aws-mum-vm-mns-010
+18.140.134.83   hostname=aws-sgp-vm-mns-001
+54.151.194.143  hostname=aws-sgp-vm-mns-002
+54.179.211.39   hostname=aws-sgp-vm-mns-003
+54.254.42.143   hostname=aws-sgp-vm-mns-004
+54.255.121.182  hostname=aws-sgp-vm-mns-005
+13.212.21.10    hostname=aws-sgp-vm-mns-006
+54.254.217.208  hostname=aws-sgp-vm-mns-007
+54.169.58.238   hostname=aws-sgp-vm-mns-008
+13.212.35.188   hostname=aws-sgp-vm-mns-009
+54.254.223.112  hostname=aws-sgp-vm-mns-010
+3.96.4.148      hostname=aws-cca-vm-mns-001
+35.182.29.1     hostname=aws-cca-vm-mns-002
+52.60.217.46    hostname=aws-cca-vm-mns-003
+3.96.189.137    hostname=aws-cca-vm-mns-004
+15.222.244.220  hostname=aws-cca-vm-mns-005
+3.96.147.119    hostname=aws-cca-vm-mns-006
+35.183.128.82   hostname=aws-cca-vm-mns-007
+15.223.65.173   hostname=aws-cca-vm-mns-008
+3.96.203.20     hostname=aws-cca-vm-mns-009
+35.183.68.217   hostname=aws-cca-vm-mns-010
+63.33.53.87     hostname=aws-irl-vm-mns-001
+54.73.166.100   hostname=aws-irl-vm-mns-002
+54.220.181.69   hostname=aws-irl-vm-mns-003
+18.200.155.248  hostname=aws-irl-vm-mns-005
+52.212.159.74   hostname=aws-irl-vm-mns-006
+3.250.107.51    hostname=aws-irl-vm-mns-007
+54.247.46.191   hostname=aws-irl-vm-mns-008
+3.250.78.162    hostname=aws-irl-vm-mns-009
+3.250.29.101    hostname=aws-irl-vm-mns-010
+3.124.220.177   hostname=aws-fra-vm-mns-001
+18.159.30.171   hostname=aws-fra-vm-mns-002
+18.158.81.200   hostname=aws-fra-vm-mns-003
+18.194.73.2     hostname=aws-fra-vm-mns-004
+52.29.199.120   hostname=aws-fra-vm-mns-005
+3.121.22.190    hostname=aws-fra-vm-mns-006
+18.197.72.26    hostname=aws-fra-vm-mns-007
+54.93.251.92    hostname=aws-fra-vm-mns-008
+35.157.5.171    hostname=aws-fra-vm-mns-009
+3.122.231.226   hostname=aws-fra-vm-mns-010
+
+[producer]
+18.138.238.82
+18.140.198.20
+13.251.88.135
+18.141.213.225
+13.229.153.202
+3.0.48.130
+3.1.26.215
+3.1.209.253
+13.251.35.165
+18.141.153.79
+13.212.30.46
+13.212.16.54
+18.141.212.157
+13.229.141.36
+13.251.60.250
+13.229.147.27
+18.141.210.25
+18.141.212.192
+18.140.237.236
+18.141.163.90
+18.140.199.221
+13.212.18.153
+18.140.231.65
+13.229.154.110
+18.141.217.208
+13.251.102.47
+3.0.200.130
+13.212.69.242
+3.1.64.105
+3.0.200.157
+
+[generator]
+18.141.217.208
+13.251.102.47
+3.0.200.130
+13.212.69.242
+3.1.64.105
+
+[front]
+18.138.238.82
+18.140.198.20

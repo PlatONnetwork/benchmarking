@@ -1,0 +1,39 @@
+---
+- hosts: "{{ target }}"
+  vars_prompt:
+    - name: "target"
+      prompt: "Which host or group would you like to assign"
+      private: no
+      default: "Default: empty"
+    - name: "confirm"
+      prompt: "Are you sure you want to clean the data of platon"
+      private: no
+      default: "no"
+  tasks:
+    - name: "Confirm to action"
+      fail:
+        msg: "You must type yes to confirm the action!"
+      when: confirm != 'yes'
+
+    - name: "Check if {{ node_home }}/data/platon directory exists"
+      stat:
+        path: "{{ node_home }}/data/platon"
+      register: result
+
+    - name: "Stop initializing when platon directory exists"
+      fail:
+        msg: "The {{ node_home }}/data/platon exists"
+      when: result.stat.exists
+
+    - name: "Sync genesis.json for {{ node_name }}"
+      template:
+        src: "/etc/ansible/files/platon/genesis.json"
+        dest: "{{ node_home }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: 0644
+
+    - name: "Initialize {{ node_name }}"
+      shell: "{{ node_bin }} --datadir {{ node_home }}/data init {{ node_home }}/genesis.json"
+#      async: 0
+#      pod: 10

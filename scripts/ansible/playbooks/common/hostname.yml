@@ -1,0 +1,10 @@
+--- 
+    - name: "Modify the main file"
+      lineinfile:
+        path: /etc/cloud/cloud.cfg
+        regexp: 'preserve_hostname: false'
+        line: 'preserve_hostname: true'
+
+    - name: "chang hostname"
+      shell: "hostnamectl set-hostname {{ hostname }}"
+

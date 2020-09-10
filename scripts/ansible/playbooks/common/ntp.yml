@@ -1,0 +1,57 @@
+---
+    - name: "Run the equivalent of apt update"
+      apt:
+        update_cache: yes
+      when:
+        - ansible_facts['distribution'] == "Ubuntu"
+
+    - name: "Install NTP"
+      package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - ntp
+
+    - name: "Configure ntpd.service on CentOS"
+      lineinfile:
+        path: /usr/lib/systemd/system/ntpd.service
+        insertafter: 'PrivateTmp=true'
+        line: "{{ item }}"
+        state: present
+      with_items:
+        - "Restart=always"
+        - "RestartSec=5s"
+      when:
+        - ansible_facts['distribution'] == "CentOS"
+
+    - name: "Configure ntp.service on Ubuntu"
+      lineinfile:
+        path: /lib/systemd/system/ntp.service
+        insertafter: 'PrivateTmp=true'
+        line: "{{ item }}"
+        state: present
+      with_items:
+        - "Restart=always"
+        - "RestartSec=5s"
+      when:
+        - ansible_facts['distribution'] == "Ubuntu"
+
+    - name: "Reload configs after syncing ntp service"
+      systemd:
+        daemon_reload: yes
+
+    - name: "Make sure NTP is startup on boot and running on Ubuntu"
+      systemd:
+        name: ntp
+        state: started
+        enabled: yes
+      when:
+        - ansible_facts['distribution'] == "Ubuntu"
+
+    - name: "Make sure NTP is startup on boot and running on CentOS"
+      systemd:
+        name: ntpd
+        state: started
+        enabled: yes
+      when:
+        - ansible_facts['distribution'] == "CentOS"

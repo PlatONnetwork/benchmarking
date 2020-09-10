@@ -1,0 +1,83 @@
+---
+- hosts: node
+  become: true
+  tasks:
+    - name: "Create directory of {{ node_name }}"
+      file:
+        dest: "{{ item }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: 0755
+        state: directory
+      with_items:
+        - "{{ node_log_home }}"
+        - "{{ node_home }}"
+
+    - name: "Check if {{ node_name }} file exists"
+      stat:
+        path: "{{ node_bin_home }}/{{ node_name }}_{{ version }}"
+      register: result
+
+    - name: "Stop if {{ node_name }} exists"
+      fail:
+        msg: "The version {{ version }} of {{ node_name }} is installed"
+      when: result.stat.exists == True
+
+    - name: "Download package of {{ node_name }}"
+      get_url:
+        url: "{{ repo_url }}/codes/{{ app_env }}/servers/{{ version.split('-')[0] }}/{{ node_name }}_{{ version.split('-')[1] }}.bz2"
+        dest: "{{ node_bin_home }}/{{ node_name }}_{{ version.split('-')[1] }}.bz2"
+
+    - name: "Unarchive the {{ node_name }} package"
+      shell: "bunzip2 {{ node_bin_home }}/{{ node_name }}_{{ version.split('-')[1] }}.bz2"
+
+    - name: "Rename {{ node_name }}"
+      shell: "mv {{ node_bin_home }}/{{ node_name }}_{{ version.split('-')[1] }} {{ node_bin_home }}/{{ node_name }}_{{ version }}"
+
+    - name: "Add x perm to {{ node_name }}"
+      file:
+        dest: "{{ node_bin_home }}/{{ node_name }}_{{ version }}"
+        mode: 0755
+
+    - name: "Get the process ID of supervisor"
+      shell: "ps -ef | grep supervisor | grep -v grep | awk '{print $2}'"
+      register: pid
+
+    - name: "Stop {{ node_name }} service from supervisor"
+      supervisorctl:
+        name: "{{ node_name }}"
+        state: stopped
+      when: pid.stdout | length > 0
+      ignore_errors: True
+
+    - name: "Delete soft link of {{ node_name }}"
+      file:
+        path: "{{ node_bin }}"
+        state: absent
+    
+    - name: "Create soft link of {{ node_name }}"
+      file:
+        src: "{{ node_bin_home }}/{{ node_name }}_{{ version }}"
+        dest: "{{ node_bin }}"
+        state: link
+
+    - name: "Start {{ node_name }} service from supervisor"
+      supervisorctl:
+        name: "{{ node_name }}"
+        state: started
+
+    - name: "Find old {{ node_name }} binary"
+      find:
+        paths: "{{ node_bin_home }}"
+        file_type: file
+        use_regex: yes
+        patterns:
+          - 'platon_.*'
+          - 'splaton_.*'
+      register: binary
+
+    - name: "Reserve newest 5 {{ node_name }} binaries"
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items: "{{ (binary.files | sort(attribute='ctime', reverse=True))[5:] | list }}"

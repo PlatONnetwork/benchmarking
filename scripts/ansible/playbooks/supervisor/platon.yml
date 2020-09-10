@@ -1,0 +1,29 @@
+---
+ - hosts: "{{ target }}"
+   gather_facts: yes
+   vars_prompt:
+    - name: "target"
+      prompt: "Which host or group would you like to assign"
+      private: no
+      default: "Default: empty"
+   tasks:
+     - name: "Configure supervisord.conf"
+       template:
+         src: /etc/ansible/files/supervisor/supervisord.conf.j2
+         dest: /etc/supervisor/supervisord.conf
+         owner: "{{ app_user }}"
+         group: "{{ app_user }}"
+         mode: 0644
+
+     - name: "Configure supervisor conf for {{ node_name }}"
+       template:
+         src: /etc/ansible/files/supervisor/platon.conf.j2
+         dest: /etc/supervisor/conf.d/{{ node_name }}.conf
+         owner: "{{ app_user }}"
+         group: "{{ app_user }}"
+         mode: 0644
+
+     - name: "Reload configs after syncing supervisor.service"
+       systemd:
+         daemon_reload: yes
+       become: true

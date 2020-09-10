@@ -1,0 +1,39 @@
+---
+- hosts: "{{ target }}"
+  become: true
+  vars_prompt:
+    - name: "target"
+      prompt: "Which host or group would you like to assign"
+      private: no
+      default: "Default: empty"
+    - name: "version"
+      prompt: "Which version would you like to deploy"
+      private: no
+      default: "Default: empty"
+  tasks:
+    - name: "Download package of platon"
+      get_url:
+        url: "{{ repo_url }}/codes/{{ app_env }}/servers/{{ version.split('-')[0] }}/platon_{{ version.split('-')[1] }}.bz2"
+        dest: "{{ node_bin_home }}/platon_{{ version.split('-')[1] }}.bz2"
+
+    - name: "Unarchive the platon package"
+      shell: "bunzip2 {{ node_bin_home }}/platon_{{ version.split('-')[1] }}.bz2"
+
+    - name: "Rename platon"
+      shell: "mv {{ node_bin_home }}/platon_{{ version.split('-')[1] }} {{ node_bin_home }}/platon_{{ version }}"
+
+    - name: "Add x perm to platon"
+      file:
+        dest: "{{ node_bin_home }}/platon_{{ version }}"
+        mode: 0755
+
+    - name: "Delete soft link of platon"
+      file:
+        path: "{{ node_bin }}"
+        state: absent
+    
+    - name: "Create soft link of platon"
+      file:
+        src: "{{ node_bin_home }}/platon_{{ version }}"
+        dest: "{{ node_bin }}"
+        state: link

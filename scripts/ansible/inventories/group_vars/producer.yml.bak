@@ -1,0 +1,3 @@
+app_home: /home/pchuant
+node_name: eosio
+node_home: "{{ app_home }}/eosio"

@@ -1,0 +1,47 @@
+---
+- hosts: "{{ target }}"
+  become: true
+  gather_facts: false
+  vars_prompt:
+    - name: "target"
+      prompt: "Which host or group would you like to assign"
+      private: no
+      default: "Default: empty"
+    - name: "disksize"
+      prompt: "Input the total disk size"
+      private: no
+      default: "Default: empty"
+  tasks:
+    - name: "Install growpart and xfsprogs tools"
+      package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - cloud-guest-utils
+        - xfsprogs
+    
+    - name: "Get data disk info"
+      shell: fdisk -l | awk '$3=={{ disksize }} {print $2}' | sed 's/://g'
+      register: disk
+
+    - name: "Stop the operations below if disk not existed"
+      fail:
+        msg: "No matching disk found"
+      when: disk.stdout | length == 0
+
+    - name: "Partition expansion actions"
+      block:
+        - name: "Get data disk partition info"
+          shell: fdisk -l | egrep "^{{ disk.stdout }}" | awk '{print $1}'
+          register: partition
+
+        - name: "Stop the operations below if disk partition not exists"
+          fail:
+            msg: "Disk partition not exists"
+          when: partition.stdout | length == 0
+
+        - name: "Expand partition"
+          shell: growpart "{{ disk.stdout }}" 1
+
+        - name: "Resize partition"
+          shell: resize2fs "{{ partition.stdout }}"

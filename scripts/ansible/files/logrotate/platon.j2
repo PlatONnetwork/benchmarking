@@ -1,0 +1,30 @@
+{{ node_home }}/platon.log {
+    su root {{ app_user }}
+    rotate {{ log_rotate_number }}
+    copytruncate
+    missingok
+    notifempty
+    olddir {{ node_log_home }}
+    ### Log Format Options ###
+    dateext
+    dateformat .%Y%m%d-%H
+    ### Compress Options ###
+    compress
+    delaycompress
+    ### Script ###
+    prerotate
+        /bin/bash -c "tail -f {{ node_home }}/platon.log > {{ node_home }}/tmp.log" &
+    endscript
+    postrotate
+        LOG_DATE=$(date "+%Y%m%d-%H")
+        APP_HOME="{{ node_home }}"
+        LOG_HOME="{{ node_log_home }}"
+        sleep 1
+        pgrep tail | xargs kill -9
+        cat ${LOG_HOME}/platon.log.${LOG_DATE} ${APP_HOME}/tmp.log > ${LOG_HOME}/tmp.${LOG_DATE}
+        rm -f ${LOG_HOME}/platon.log.${LOG_DATE}
+        mv ${LOG_HOME}/tmp.${LOG_DATE} ${LOG_HOME}/platon.log.${LOG_DATE}
+        chown {{ app_user }}:{{ app_user }} ${LOG_HOME}/platon.log.${LOG_DATE}
+        rm -f ${APP_HOME}/tmp.log
+    endscript
+}

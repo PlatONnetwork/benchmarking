@@ -1,0 +1,58 @@
+---
+- hosts: "{{ target }}"
+  become: true
+  vars_prompt:
+    - name: "target"
+      prompt: "Which host or group would you like to assign"
+      private: no
+      default: "Default: empty"
+    - name: "nodeName"
+      prompt: "Which node name would you like to deploy"
+      private: no
+      default: "Default: empty"
+  tasks:
+    - name: "Create directory of {{ nodeName }}"
+      file:
+        dest: "{{ item }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: 0755
+        state: directory
+      with_items:
+        - "{{ log_home }}/{{ nodeName }}"
+        - "{{ app_home }}/{{ nodeName }}"
+
+    - name: "Get the process ID of supervisor"
+      shell: "ps -ef | grep supervisor | grep -v grep | awk '{print $2}'"
+      register: pid
+
+    - name: "Stop {{ nodeName }} service from supervisor"
+      supervisorctl:
+        name: "{{ nodeName }}"
+        state: stopped
+      when: pid.stdout | length > 0
+      ignore_errors: True
+        
+    - name: "Sync genesis.json for {{ node_name }}"
+      template:
+        src: "/etc/ansible/files/platon/mnsh/genesis.json"
+        dest: "{{ node_home }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: 0644
+
+    - name: "Initialize {{ node_name }}"
+      shell: "{{ node_bin }} --datadir {{ node_home }}/data init {{ node_home }}/genesis.json"
+
+    - name: "chown pchuant:pchuant /opt/platon/data"
+      file:
+        path: /opt/platon/data
+        recurse: yes
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: 0755
+     
+    - name: "Start {{ nodeName }} service from supervisor"
+      supervisorctl:
+        name: "{{ nodeName }}"
+        state: started

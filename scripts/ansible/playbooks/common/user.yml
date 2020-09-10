@@ -1,0 +1,27 @@
+--- 
+    - name: "Add user and passwd"
+      user:
+        name: "{{ username }}"
+        password: "{{ pass | password_hash('sha512') }}"
+        update_password: on_create
+        shell: /bin/bash
+        create_home: yes
+        system: yes
+        comment: "create by ansible"
+
+    - name: "Create the /etc/sudoers.d/{{ username }}"
+      file: 
+        path: "/etc/sudoers.d/{{ username }}"
+        state: touch
+        mode: 0644
+        owner: root
+        group: root
+
+    - name: "validate the /etc/sudoers/{{ username }} file before saving"
+      lineinfile: 
+        dest: "/etc/sudoers.d/{{ username }}"
+        state: present  
+        line: '{{item }}' 
+        validate: 'visudo -cf %s'
+      with_items:
+           - "{{ username }} ALL=(ALL) NOPASSWD: ALL"

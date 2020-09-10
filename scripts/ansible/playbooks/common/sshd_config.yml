@@ -1,0 +1,22 @@
+---
+#    - name: " Change the file /etc/ssh/sshd_config"
+#      lineinfile:
+#        dest: /etc/ssh/sshd_config
+#        regexp: "{ item.regexp }"
+#        line: "{{ item.line }}"
+#        state: present
+#      with_items:
+#        - { regexp: '^#PubkeyAuthentication yes', line: 'PubkeyAuthentication yes'}
+#        - { regexp: '^#PasswordAuthentication yes', line: 'PasswordAuthentication no'}
+#        - { regexp: '^#PermitRootLogin prohibit-password', line: 'PermitRootLogin no'}
+#        - { regexp: '^#PermitEmptyPasswords no', line: 'PermitEmptyPasswords no'}
+#        - 
+    - name: "copy the file sshd_config.js to remote host"
+      template:
+        src: /etc/ansible/files/ssh/sshd_config.j2
+        dest: /etc/ssh/sshd_config
+        force: yes
+    - name: "Restart service"
+      service:
+        name: ssh 
+        state: restarted

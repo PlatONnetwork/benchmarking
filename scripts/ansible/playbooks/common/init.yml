@@ -1,0 +1,18 @@
+---
+- hosts: "{{ target }}"
+  become: yes
+  vars_prompt:
+    - name: target
+      prompt: "Which host or group would you like to assign"
+      private: no
+  tasks:
+     - include: ntp.yml
+       #     - include: user.yml
+     - include: timezone.yml
+     - include: optimize.yml 
+       #     - include: sshd_config.yml
+       #     - include: vimrc.yml
+       #     - include: hostname.yml
+       #     - include: secure_ssh.yml
+     - include: ssh_key.yml
+     - include: install_pkg.yml
