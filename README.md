@@ -40,6 +40,19 @@ PlatON vs EOS性能对比测试说明。
 ...
 ```
 
+### 配置 ansible 免密登录
+
+```bash 
+# 配置免密 /etc/ansible/inventories/group_vars/all.yml文件需要加入sudo密码
+# 如果中途加入新的从机器，直接执行初始化系统步骤
+$ ansible node -m ping
+# 生成key
+$ ssh-keygen
+$ cp ~/.ssh/id_rsa.pub /etc/ansible/files/ssh/ssh_key
+# 初始化系统
+$ ansible-playbook /etc/ansible/playbooks/common/init.yml
+```
+
 ## PlatON
 
 ### 部署集群节点
@@ -122,10 +135,10 @@ curl -H "Content-Type: application/json"   -X POST --data '{"jsonrpc":"2.0","met
 ```
 
 > 说明：
-	前三个参数表示转账、evm合约、wasm合约交易类型，1 开启，0 不开启
-	第四个参数表示单位时间内发送交易总数
-	第五个参数表示活跃账户发送交易的总数，一般为小于第四个参数值
-	第六个参数表示每100毫秒触发一次发送交易命令
+	前三个参数表示转账、evm合约、wasm合约交易类型，1 开启，0 不开启；
+	第四个参数表示单位时间内发送交易总数；
+	第五个参数表示活跃账户发送交易的总数，一般为小于第四个参数值；
+	第六个参数表示每100毫秒触发一次发送交易命令；
 	其余命令请参考插件使用说明文档
 
 ## EOS
@@ -148,9 +161,18 @@ curl -H "Content-Type: application/json"   -X POST --data '{"jsonrpc":"2.0","met
 
 安装官网指导，完成eos的编译和安装，EOS默认安装在`~/eosio/2.0`， 以下操作中以此目录为默认路径，如果指定了其他路径请自行调整。
 
-4. 添加环境变量
+4. 将安装好的EOS2.0同步到集群所有节点
 
-编辑`~/.bashrc`, 将EOSIO二进制所在目录添加到`PATH`
+对于集群内的节点，可以在其中一台主机上编译并安装， 安装完成后将`~/eosio/2.0`和本仓库的`scripts\eosio\bin`目录打包压缩，然后通过scp分发到集群内的其他节点，可以通过ansible对集群内的所有节点进行解压：
+
+```
+ansible 集群名 -m shell -a "tar -zxvf ~/eosio.tar.gz -C ~"
+```
+
+5. 添加环境变量
+
+为操作方便，可以将`~/eosio/2.0/bin`添加到系统`PATH`
+编辑`~/.bashrc`
 
 ```
 export EOSHOME=$HOME/eosio
@@ -162,6 +184,8 @@ export PATH=$PATH:$EOSHOME/2.0/bin
 ```
 source ~/.bashrc
 ```
+
+> 注：以上步骤需要在所有集群内节点执行
 
 ### 部署
 
@@ -247,7 +271,14 @@ cleos wallet import -n single --private-key  producer的私钥
 $HOME/eosio/bin/systeminit.sh
 ```
 
-3. 启动压测
+3. 准备合约
+
+本次压测所需要的合约在`/benchmarking/contracts/eosio/eosio.contracts`，如果需要修改合约内容，请按[官方指导](https://developers.eos.io/manuals/eosio.cdt/latest/how-to-guides/compile/compile-a-contract-via-cli)对合约重新进行编译。
+在进行压测前，需要将待测合约的编译好（需有.abi文件和.wasm文件），本例中将合约放到`~/eosio//home/jht/eosio/eosio.contracts`，如果不使用此路径，需要自己修改`/etc/ansible/files/keys/config/generator.ini`,将`txn-test-gen-is-abiserializer`和`txn-test-gen-token-abiserializer`做适应修改。
+
+特别注意，天使节点（即第一个节点必须用源码的方式编译eos，否则链初始化时会报找不到合约内容的错。
+
+4. 启动压测
 
 在generator节点中执行以下命令：
 
