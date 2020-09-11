@@ -14,12 +14,12 @@ do
   host=($LINE)
 
 ##get and distribute nodekeys
-  # ./keytool genkeypair >./addr/${host}.addr
+  ./keytool genkeypair >./addr/${host}.addr
   grep PrivateKey ./addr/${host}.addr |sed 's/PrivateKey:  //g'>./nodekey/${host}.key
   scp -o StrictHostKeyChecking=no ./nodekey/${host}.key $user@${host}:${remotedir}/nodekey.txt
 
 ##get and distribute nodeblskeys
-  # ./keytool genblskeypair >./bls/${host}.bls
+  ./keytool genblskeypair >./bls/${host}.bls
   grep PrivateKey ./bls/${host}.bls |sed 's/PrivateKey:  //g'>./nodeblskey/${host}.bls
   scp -o StrictHostKeyChecking=no ./nodeblskey/${host}.bls $user@${host}:${remotedir}/nodeblskey.txt
 

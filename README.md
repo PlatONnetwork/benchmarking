@@ -14,13 +14,15 @@ PlatON vs EOS性能对比测试说明。
 
 除PlatON和EOS官方要求的常规软件（如git、gcc等）外，本次测试需要安装以下软件：
 1. ansible(2.9.12+，只需在主控节点安装)
-2. jq (jq-1.5-1+)
-3. curl(7.58.0+)
+2. nginx(1.14.0，作为PlatON二进制包的下载仓库，只需在主控节点安装)
+3. supervisor(3.3.1，在部署节点安装)
+4. jq (jq-1.5-1+)
+5. curl(7.58.0+)
 
 ### 配置集群
 
-1. 将'scripts'目录下的'ansible'目录拷贝到主控节点（可以任意指定）的'/etc/ansible'下
-2. 编辑'/etc/ansible/inventories/hosts'文件，添加集群信息，如：
+1. 将 `scripts` 目录下的'ansible'目录拷贝到主控节点（可以任意指定）的'/etc/ansible'下
+2. 编辑 `/etc/ansible/inventories/hosts` 文件，添加集群信息，如：
 
 ```
 [node_mnsh]
@@ -96,11 +98,97 @@ PlatON vs EOS性能对比测试说明。
 
 ## PlatON
 
+### 部署集群节点
+
+1. 源码安装PlatON
+
+本次测试PlatON的代码分支为[develop](https://github.com/PlatONnetwork/PlatON-Go/tree/develop)，commitid: aeeca8337208a2c8f7ea418e36b94674beb10db5。
+
+源码编译安装可参考[PlatON开发者文档](https://devdocs.platon.network/docs/zh-CN/Install_PlatON)。
+
+2. 发布PlatON
+
+使用 nginx 作为源仓库，存放二进制包
+
+```bash
+# 配置nginx资源下载转发规则
+$ sudo vim /etc/nginx/conf.d/localhost.conf
+server {
+    listen  80;
+    server_name  localhost;
+    location /codes {
+        alias /opt/codes;
+    }
+}
+$ sudo sed -i '/sites-enabled/ s/^/#/g'  nginx.conf 
+$ sudo systemctl reload nginx
+# 新建包存放目录
+$ mkdir -p /opt/codes/test/servers/20200907
+$ sudo chown -R pchuant:pchuant /opt
+# 将platon重命名platon_1，然后压缩为platon_1.bz2
+$ cd /opt/codes/test/servers/20200907
+$ bzip2 platon_1
+# 下发platon执行文件到各部署节点，并创建软链接/usr/bin/platon
+$ ansible-playbook /etc/ansible/playbooks/platon/deploy_binary.yml
+Which host or group would you like to assign [Default: empty]: node_mnsh
+Which version would you like to deploy [Default: empty]: 20200907-1
+```
+
+3. 生成及下发节点 nodekey 和 nodeblskey
+
+编辑 `/etc/ansible/files/keys/hosts` 文件，添加集群主机信息，在 `/etc/ansible/files/keys` 目录下执行
+
+```bash
+$ ./nodekey.sh getkey
+```
+
+根据模板生成创世区块文件（替换初始共识节点列表），将生成的 `genesis.json` 文件上传到 `/etc/ansible/files/platon` 目录
+
+4. 下发 supervisor 配置文件
+
+```bash
+# 安装supervisor服务
+$ ansible-playbook /etc/ansible/playbooks/supervisor/install.yml
+Which host or group would you like to assign [Default: empty]: node_mnsh
+# 下发使用supervisor启动platon的配置文件
+$ ansible-playbook /etc/ansible/playbooks/supervisor/platon.yml
+Which host or group would you like to assign [Default: empty]: node_mnsh
+# Supervisor 启动，修改过配置文件，则用reload替换start
+$ ansible node -m node -a "supervisorctl reload"
+```
+
+5. 部署集群
+
+```bash
+# ansible-playbook /etc/ansible/playbooks/platon/deploy.yml
+Which host or group would you like to assign [Default: empty]: node_mnsh
+Which node name would you like to deploy [Default: empty]: platon
+```
+
+### 启动压测
+
+1. 部署压测脚本
+
+从集群中选择1~3个节点作为压测插件节点（建议选择非共识节点），登陆节点所在主机，将压测脚本`private_keys.json` 上传到用户目录下，比如 `/home/pchuant/private_keys.json`
+
+2. 执行压测命令
+
+```
+curl -H "Content-Type: application/json"   -X POST --data '{"jsonrpc":"2.0","method":"txgen_start","params":[1,0,0,500,0,100,0,1,"/home/pchuant/private_keys.json",1,5000,15],"id":1}' http://localhost:6691
+```
+
+> 说明：
+	前三个参数表示转账、evm合约、wasm合约交易类型，1 开启，0 不开启
+	第四个参数表示单位时间内发送交易总数
+	第五个参数表示活跃账户发送交易的总数，一般为小于第四个参数值
+	第六个参数表示每100毫秒触发一次发送交易命令
+	其余命令请参考插件使用说明文档
+
 ## EOS
 
 ### 代码分支
 
-本次才是EOS的代码分支为[master](https://github.com/EOSIO/eos/tree/master)，commitid:0d87dff8bee56179aa01472dd00a089b2aa7b9fa。
+本次测试EOS的代码分支为[master](https://github.com/EOSIO/eos/tree/master)，commitid:0d87dff8bee56179aa01472dd00a089b2aa7b9fa。
 
 1. clone代码
 
@@ -112,7 +200,7 @@ PlatON vs EOS性能对比测试说明。
 
 3. build&&install
 
-按照官网指导，完成eos的编译和安装，EOS默认安装在'~/eosio/2.0'， 以下操作中以此目录为默认路径，如果指定了其他路径请自行调整。
+安装官网指导，完成eos的编译和安装，EOS默认安装在'~/eosio/2.0'， 以下操作中以此目录为默认路径，如果指定了其他路径请自行调整。
 
 4. 添加环境变量
 
