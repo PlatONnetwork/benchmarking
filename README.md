@@ -276,7 +276,7 @@ $HOME/eosio/bin/systeminit.sh
 本次压测所需要的合约在`/benchmarking/contracts/eosio/eosio.contracts`，如果需要修改合约内容，请按[官方指导](https://developers.eos.io/manuals/eosio.cdt/latest/how-to-guides/compile/compile-a-contract-via-cli)对合约重新进行编译。
 在进行压测前，需要将待测合约的编译好（需有.abi文件和.wasm文件），本例中将合约放到`~/eosio//home/jht/eosio/eosio.contracts`，如果不使用此路径，需要自己修改`/etc/ansible/files/keys/config/generator.ini`,将`txn-test-gen-is-abiserializer`和`txn-test-gen-token-abiserializer`做适应修改。
 
-特别注意，天使节点（即第一个节点必须用源码的方式编译eos，否则链初始化时会报找不到合约内容的错。
+特别注意，天使节点（即第一个节点）必须用源码的方式编译eos和contracts，否则链初始化时会报找不到合约内容的错。
 
 4. 启动压测
 
