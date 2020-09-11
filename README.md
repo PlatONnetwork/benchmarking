@@ -21,7 +21,7 @@ PlatON vs EOS性能对比测试说明。
 
 ### 配置集群
 
-1. 将 `scripts` 目录下的'ansible'目录拷贝到主控节点（可以任意指定）的'/etc/ansible'下
+1. 将 `scripts` 目录下的'ansible'目录拷贝到主控节点（可以任意指定）的 `/etc/ansible` 下
 2. 编辑 `/etc/ansible/inventories/hosts` 文件，添加集群信息，如：
 
 ```
@@ -36,6 +36,19 @@ PlatON vs EOS性能对比测试说明。
 [generator]
 18.141.217.208
 ...
+```
+
+### 配置 ansible 免密登录
+
+```bash 
+# 配置免密 /etc/ansible/inventories/group_vars/all.yml文件需要加入sudo密码
+# 如果中途加入新的从机器，直接执行初始化系统步骤
+$ ansible node -m ping
+# 生成key
+$ ssh-keygen
+$ cp ~/.ssh/id_rsa.pub /etc/ansible/files/ssh/ssh_key
+# 初始化系统
+$ ansible-playbook /etc/ansible/playbooks/common/init.yml
 ```
 
 ## PlatON
@@ -120,10 +133,10 @@ curl -H "Content-Type: application/json"   -X POST --data '{"jsonrpc":"2.0","met
 ```
 
 > 说明：
-	前三个参数表示转账、evm合约、wasm合约交易类型，1 开启，0 不开启
-	第四个参数表示单位时间内发送交易总数
-	第五个参数表示活跃账户发送交易的总数，一般为小于第四个参数值
-	第六个参数表示每100毫秒触发一次发送交易命令
+	前三个参数表示转账、evm合约、wasm合约交易类型，1 开启，0 不开启；
+	第四个参数表示单位时间内发送交易总数；
+	第五个参数表示活跃账户发送交易的总数，一般为小于第四个参数值；
+	第六个参数表示每100毫秒触发一次发送交易命令；
 	其余命令请参考插件使用说明文档
 
 ## EOS
