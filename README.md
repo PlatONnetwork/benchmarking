@@ -112,7 +112,7 @@ PlatON vs EOS性能对比测试说明。
 
 3. build&&install
 
-安装官网指导，完成eos的编译和安装，EOS默认安装在'~/eosio/2.0'， 以下操作中以此目录为默认路径，如果指定了其他路径请自行调整。
+按照官网指导，完成eos的编译和安装，EOS默认安装在'~/eosio/2.0'， 以下操作中以此目录为默认路径，如果指定了其他路径请自行调整。
 
 4. 添加环境变量
 
@@ -207,7 +207,6 @@ cleos wallet import -n single --private-key  producer的私钥
 ```
 $HOME/eosio/bin/systeminit.sh
 ```
-> 
 
 13. 启动压测
 
