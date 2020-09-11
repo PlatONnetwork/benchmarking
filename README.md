@@ -136,6 +136,7 @@ source ~/.bashrc
 ```
 ./genhostsinfo.sh
 ```
+> 脚本中使用了默认的eosio公私钥，如果不想用默认值，请修改脚本替换
 
 执行完成后，将在当前路径生成'hostsinfo'文件。
 
@@ -193,11 +194,20 @@ ansible-playbook /etc/ansible/playbooks/eosio/start_generator.yml
 $HOME/eosio/bin/creategenAccount.sh
 ```
 
-12. 账户创建成功后，在天使节点执行以下命令使超级节点（producer）成为共识节点
+12. 质押和委托
+
+节点注册producer和vote都需要私钥签名交易，所以在执行脚本前请手动将各个节点producer的私钥导入天使节点的钱包（bench）
+
+```
+cleos wallet import -n single --private-key  producer的私钥
+```
+
+导入成功后，在天使节点执行以下命令使超级节点（producer）成为共识节点
 
 ```
 $HOME/eosio/bin/systeminit.sh
 ```
+> 
 
 13. 启动压测
 
