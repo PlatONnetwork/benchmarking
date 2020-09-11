@@ -7,7 +7,9 @@ PlatON vs EOS性能对比测试说明。
 ### 服务器
 
 本次测试采用AWS的c5d.4xlarge服务器，Intel(R) Xeon(R) 8124M 16核 3.0GHz，32G内存，300G SSD硬盘。
+
 数量：30台
+
 系统：Ubuntu 18.04.4 LTS
 
 ### 依赖软件
@@ -21,7 +23,7 @@ PlatON vs EOS性能对比测试说明。
 
 ### 配置集群
 
-1. 将 `scripts` 目录下的'ansible'目录拷贝到主控节点（可以任意指定）的'/etc/ansible'下
+1. 将 `scripts` 目录下的`ansible`目录拷贝到主控节点（可以任意指定）的`/etc/ansible`下
 2. 编辑 `/etc/ansible/inventories/hosts` 文件，添加集群信息，如：
 
 ```
@@ -140,15 +142,15 @@ curl -H "Content-Type: application/json"   -X POST --data '{"jsonrpc":"2.0","met
 
 2. 替换插件文件
 
-请将'plugin/eosio/txn_test_gen_plugin.cpp'覆盖到'eos/plugins/txn_test_gen_plugin'
+请将`plugin/eosio/txn_test_gen_plugin.cpp`覆盖到`eos/plugins/txn_test_gen_plugin`
 
 3. build&&install
 
-安装官网指导，完成eos的编译和安装，EOS默认安装在'~/eosio/2.0'， 以下操作中以此目录为默认路径，如果指定了其他路径请自行调整。
+安装官网指导，完成eos的编译和安装，EOS默认安装在`~/eosio/2.0`， 以下操作中以此目录为默认路径，如果指定了其他路径请自行调整。
 
 4. 添加环境变量
 
-编辑'~/.bashrc', 将EOSIO二进制所在目录添加到PATH
+编辑`~/.bashrc`, 将EOSIO二进制所在目录添加到`PATH`
 
 ```
 export EOSHOME=$HOME/eosio
@@ -165,14 +167,15 @@ source ~/.bashrc
 
 1. 生成hostsinfo
 
-编辑'/etc/ansible/files/keys/config/hosts'文件，添加需要部署EOS节点的IP（注意第一个IP将被默认设置未天使节点，即eosio节点），然后执行脚本：
+编辑`/etc/ansible/files/keys/config/hosts`文件，添加需要部署EOS节点的IP（注意第一个IP将被默认设置未天使节点，即eosio节点），然后执行脚本：
 
 ```
 ./genhostsinfo.sh
 ```
+
 > 脚本中使用了默认的eosio公私钥，如果不想用默认值，请修改脚本替换
 
-执行完成后，将在当前路径生成'hostsinfo'文件。
+执行完成后，将在当前路径生成`hostsinfo`文件。
 
 2. 分发配置文件到集群
 
@@ -195,11 +198,11 @@ cleos wallet create -n bench --to-console
 
 4. 编辑unlock.sh
 
-将上述步骤创建的钱包名及密码更新到'$HOME/eosio/bin/unlock.sh'脚本中。
+将上述步骤创建的钱包名及密码更新到`$HOME/eosio/bin/unlock.sh`脚本中。
 
 5. 在天使节点上初始化
 
-初始化的步骤很简单，只需要在天使节点的'$HOME/eosio/bin'目录下执行：
+初始化的步骤很简单，只需要在天使节点的`$HOME/eosio/bin`目录下执行：
 
 ```
  ./init.sh
@@ -252,4 +255,4 @@ $HOME/eosio/bin/systeminit.sh
 curl --data-binary '["", 0, 20, 20]' http://127.0.0.1:6666/v1/txn_test_gen/start_generation
 ```
 
-> 说明：第一个参数为salt可以填空， 第二个参数是交易类型， 0为普通转账，2为KV合约压测，第三个参数为时间间隔，单位是毫秒，第四个参数是每个线程在单位间隔内产生交易的数量，上例中的效果为：每20ms每个线程产生20笔转账交易，线程数在'$HOME/eosio/config/generator.ini'中配置
+> 说明：第一个参数为salt可以填空， 第二个参数是交易类型， 0为普通转账，2为KV合约压测，第三个参数为时间间隔，单位是毫秒，第四个参数是每个线程在单位间隔内产生交易的数量，上例中的效果为：每20ms每个线程产生20笔转账交易，线程数在`$HOME/eosio/config/generator.ini`中配置
