@@ -1,0 +1,46 @@
+{
+    "wasm": [
+        {
+            "deploy_contract_tx_hash": "0xfd4ba0e7e37d78004028659f9ea0d7cd112d773c045a8518bd2be68142438303",
+            "deploy_gas_limit": 83179,
+            "contracts_type": "Donothing",
+            "name": "wasm_code",
+            "contracts_code": "0xabc",
+            "contracts_address": "lax1u3a23l4ymylef3257yhfkdyxyaekvtaun6rvpy",
+            "call_weights": 0,
+            "call_kind": 0,
+            "call_config": [
+                {
+                    "call_gas_limit": 25514,
+                    "call_input": "c988751e30bc23ebbc78",
+                    "parameters": null
+                }
+            ]
+        }
+    ],
+    "evm": [
+        {
+            "deploy_contract_tx_hash": "0x9e8cad42733229d12b1b60c4da17f41acbd8e8e443d6538c5278018b13ed071b",
+            "deploy_gas_limit": 64417,
+            "contracts_type": "Donothing",
+            "name": "evm_code",
+            "contracts_code": "0xabc",
+            "contracts_address": "lax1rt4maqdh64g72nkj4ynj3t0560g7qfgsll7pr6",
+            "call_weights": 0,
+            "call_kind": 0,
+            "call_config": [
+                {
+                    "call_gas_limit": 21405,
+                    "call_input": "397d2895",
+                    "parameters": null
+                }
+            ]
+        }
+    ],
+    "tx": [
+        {
+            "private_key": "8b2a0625f5272a2655e79a90fa14b315603f8fa3a75c90d54ed85c3e044e6e71",
+            "address": "lax19pv24mwfxpkyvcxeqjw75x94wugq82y94eqe56"
+        }
+    ]
+}
