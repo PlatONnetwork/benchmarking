@@ -10,10 +10,6 @@
       prompt: "Which node name would you like to deploy"
       private: no
       default: "Default: empty"
-    - name: "foundation_version"
-      prompt: "Which foundation version would you like to deploy"
-      private: no
-      default: "Default: empty"
   tasks:
     - name: "Create directory of {{ nodeName }}"
       file:
@@ -39,7 +35,7 @@
         
     - name: "Sync genesis.json for {{ node_name }}"
       template:
-        src: "/etc/ansible/files/platon/genesis.json"
+        src: "/etc/ansible/files/platon/mnsh/genesis.json"
         dest: "{{ node_home }}"
         owner: "{{ app_user }}"
         group: "{{ app_user }}"
@@ -55,22 +51,6 @@
         owner: "{{ app_user }}"
         group: "{{ app_user }}"
         mode: 0755
-      
-    #- name: "Unarchive foundation data on the remote machine"
-    #  unarchive:
-    #    src: "/opt/data_{{foundation_version}}.tar.gz"
-    #    dest: "{{ app_home }}/{{ nodeName }}"
-    #    remote_src: yes
-    #    group: pchuant
-    #    owner: pchuant
-       
-    #- name: "Copy foundation data to platon data"
-    #  copy:
-    #    src: "/opt/data"
-    #    dest: "{{ app_home }}/{{ nodeName }}"
-    #    owner: "{{ app_user }}"
-    #    group: "{{ app_user }}"
-    #    remote_src: yes
      
     - name: "Start {{ nodeName }} service from supervisor"
       supervisorctl:
