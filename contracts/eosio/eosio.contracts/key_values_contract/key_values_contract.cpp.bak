@@ -1,0 +1,30 @@
+#include "key_values_contract.hpp"
+
+[[eosio::action]] void key_values_contract::modifys(uint64_t k, uint64_t n) {
+    eosio::print_f("`modifys` executing.\n");
+
+    eosio::print_f(_self.raw());
+
+    for (uint64_t i = 1; i <= n; i++) {
+
+        uint64_t key = k + i;
+
+        auto index{ _table.get_index<"index1"_n>() };
+
+        auto iter{ index.find(key) };
+
+        if (iter == _table.get_index<"index1"_n>().end()) {
+            _table.emplace(_self, [&](auto& row) {
+                row._primary_key = key;
+                row._content = n;
+                });
+        }
+        else {
+            index.modify(iter, _self, [&](auto& row) {
+                row._content += n;
+                });
+        }
+
+    }
+}
+
