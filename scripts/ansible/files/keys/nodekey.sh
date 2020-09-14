@@ -2,7 +2,7 @@
 function getkey()
 {  
 ##special nodes's dir is /opt/splaton; other nodes's dir is /opt/platon ; 
-remotedir=/opt/platon7
+remotedir=/opt/platon
 read -p"Please input the login user:" user
 [ ! -d "./addr" ] && mkdir ./addr
 [ ! -d "./bls" ] && mkdir ./bls

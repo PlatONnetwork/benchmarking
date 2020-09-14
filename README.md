@@ -17,13 +17,13 @@ PlatON vs EOS性能对比测试说明。
 除PlatON和EOS官方要求的常规软件（如git、gcc等）外，本次测试需要安装以下软件：
 1. ansible(2.9.12+，只需在主控节点安装)
 2. nginx(1.14.0，作为PlatON二进制包的下载仓库，只需在主控节点安装)
-3. supervisor(3.3.1，在部署节点安装)
+3. supervisor(3.3.1，每台部署节点都需要安装，可参考[supervisor章节](#supervisor)通过ansible脚本批量安装)
 4. jq (jq-1.5-1+)
 5. curl(7.58.0+)
 
 ### 配置集群
 
-1. 将 `scripts` 目录下的`ansible`目录拷贝到主控节点（可以任意指定）的`/etc/ansible`下
+1. 将 `scripts` 目录下的`ansible`目录拷贝到主控节点（可以任意指定）的`/etc/ansible`下，该目录需要赋值相应的用户权限及可执行权限
 2. 编辑 `/etc/ansible/inventories/hosts` 文件，添加集群信息，如：
 
 ```
@@ -40,17 +40,34 @@ PlatON vs EOS性能对比测试说明。
 ...
 ```
 
-### 配置 ansible 免密登录
+### 配置 ansible 密码登录
 
+1. 主控主机通过ansible脚本向集群机器发送执行命令，需要提前在脚本中配置集群机器的登录信息。注意，目前需要所有集群机器的账户密码保持一致
+
+   编辑 `/etc/ansible/inventories/group_vars/all.yml` 文件，添加登录信息
+
+```
+ansible_home: /etc/ansible
+timezone: UTC
+ansible_ssh_user: pchuant		# ssh登录名
+ansible_ssh_pass: 123456		# ssh登录密码
+ansible_ssh_port: 22
+ansible_sudo_pass: 123456		# sudo执行密码
+repo_url: http://47.241.16.204	# 主控机器IP信息
+app_env: test
+app_user: pchuant				# 登录名，需要和ssh登录名保持一致
+app_bin_home: /usr/bin
+app_home: /opt
+log_home: /logbak
+log_rotate_number: 20
+```
+
+2. 登录信息配置好后，初始化系统
 ```bash 
-# 配置免密 /etc/ansible/inventories/group_vars/all.yml文件需要加入sudo密码
-# 如果中途加入新的从机器，直接执行初始化系统步骤
-$ ansible node -m ping
-# 生成key
-$ ssh-keygen
-$ cp ~/.ssh/id_rsa.pub /etc/ansible/files/ssh/ssh_key
 # 初始化系统
 $ ansible-playbook /etc/ansible/playbooks/common/init.yml
+# 测试ansible 密码登录是否配置成功，注意：命令中的[node_mnsh]需要修改为配置的集群名称
+$ ansible node_mnsh -m ping
 ```
 
 ## PlatON
@@ -59,13 +76,13 @@ $ ansible-playbook /etc/ansible/playbooks/common/init.yml
 
 1. 源码安装PlatON
 
-本次测试PlatON的代码分支为[develop](https://github.com/PlatONnetwork/PlatON-Go/tree/develop)，commitid: aeeca8337208a2c8f7ea418e36b94674beb10db5。
+   本次测试PlatON的代码分支为[develop](https://github.com/PlatONnetwork/PlatON-Go/tree/develop)，commitid: aeeca8337208a2c8f7ea418e36b94674beb10db5
 
-源码编译安装可参考[PlatON开发者文档](https://devdocs.platon.network/docs/zh-CN/Install_PlatON)。
+   源码编译安装可参考[PlatON开发者文档](https://devdocs.platon.network/docs/zh-CN/Install_PlatON)
 
 2. 发布PlatON
 
-使用 nginx 作为源仓库，存放二进制包
+   使用 nginx 作为源仓库，存放platon二进制包
 
 ```bash
 # 配置nginx资源下载转发规则
@@ -77,56 +94,90 @@ server {
         alias /opt/codes;
     }
 }
-$ sudo sed -i '/sites-enabled/ s/^/#/g'  nginx.conf 
+$ sudo sed -i '/sites-enabled/ s/^/#/g'  /etc/nginx/nginx.conf 
 $ sudo systemctl reload nginx
-# 新建包存放目录
+# 新建包存放目录，20200907为当天日期，可自行修改
 $ mkdir -p /opt/codes/test/servers/20200907
+# 为/opt 目录赋用户权限，注意：命令中的[pchuant]需要自行修改
 $ sudo chown -R pchuant:pchuant /opt
 # 将platon重命名platon_1，然后压缩为platon_1.bz2
 $ cd /opt/codes/test/servers/20200907
 $ bzip2 platon_1
-# 下发platon执行文件到各部署节点，并创建软链接/usr/bin/platon
+# 下发platon执行文件到各部署节点，并创建软链接/usr/bin/platon，注意：命令中的[node_mnsh]需要修改为配置的集群名称
 $ ansible-playbook /etc/ansible/playbooks/platon/deploy_binary.yml
 Which host or group would you like to assign [Default: empty]: node_mnsh
 Which version would you like to deploy [Default: empty]: 20200907-1
 ```
 
-3. 生成及下发节点 nodekey 和 nodeblskey
+3. 生成并下发节点公私钥，并创建genesis.json
 
-编辑 `/etc/ansible/files/keys/hosts` 文件，添加集群主机信息，在 `/etc/ansible/files/keys` 目录下执行
 
 ```bash
+# 生成公私钥之前，需要先编辑 `/etc/ansible/files/keys/hosts` 文件，添加集群主机信息
+# 在 `/etc/ansible/files/keys` 目录下执行脚本
 $ ./nodekey.sh getkey
 ```
 
-根据模板生成创世区块文件（替换初始共识节点列表），将生成的 `genesis.json` 文件上传到 `/etc/ansible/files/platon` 目录
+​		该命令分别在`/etc/ansible/files/keys/addr`和`/etc/ansible/files/keys/bls`目录中生成集群节点的公私钥和bls公私钥，再根据模板生成创世区块文件（替换初始共识节点列表，这一步可参考[部署私有测试网](https://devdocs.platon.network/docs/zh-CN/Build_Private_Chain/)），将生成的 `genesis.json` 文件上传到 `/etc/ansible/files/platon` 目录
 
-4. 下发 supervisor 配置文件
+4. 添加代表组的变量文件，包括PlatON启动参数，种子节点等
+
+   编辑 `/etc/ansible/inventories/group_vars/node_mnsh.yml` 文件，注意：node_mnsh.yml文件名需要修改为配置的集群名称，文件中的 “--bootnodes” 必须修改，其他启动参数可根据压测需求自行调整
 
 ```bash
-# 安装supervisor服务
+node_name: platon
+node_home: "{{ app_home }}/platon"
+node_log_home: "{{ log_home }}/platon"
+node_chars: db,debug,platon,net,web3,admin,personal,txpool,txgen
+node_bin: "{{ app_bin_home }}/platon"
+node_bin_home: "{{ app_bin_home }}"
+node_port: 16791
+node_rpc_addr: 0.0.0.0
+node_rpc_port: 6691
+ws_option: --ws --wsaddr 0.0.0.0 --wsport 6791 --wsorigins "*" --wsapi 
+node_exec: http://127.0.0.1:6691 -exec platon.blockNumber
+node_common_args: --identity platon-{{ inventory_hostname }} {{ node_env_args }} --debug --verbosity 2 --datadir ./data --port {{ node_port }} --rpcaddr {{ node_rpc_addr }} --rpcport {{ node_rpc_port }} --rpc --rpcapi {{ node_chars }}  {{ ws_option }} {{ node_chars }} --nodekey nodekey.txt --cbft.blskey nodeblskey.txt
+node_env_args: --bootnodes enode://1eb4c4ddf915ddcc69f7486abee418df54f808afc9bd1143e09bbadb12fc508c56faac8e3ad2a370a226e364eb4183a1095fc9c24e99b9acaa277a9731fc80e8@18.138.238.82:16791
+node_extra_args:  --syncmode fast --pprof --txpool.globaltxcount 1300 --txpool.lifetime 180s --txpool.accountslots 500 --txpool.globalslots 40000 --ipcdisable --cache.triedb 1024 --txpool.nolocals --txpool.globalqueue 12000 --txpool.accountqueue 200 --txpool.cacheSize 200
+```
+
+5. <span id = "supervisor">下发 supervisor 配置文件</span>
+
+```bash
+# 安装supervisor服务，注意：命令中的[node_mnsh]需要修改为配置的集群名称
 $ ansible-playbook /etc/ansible/playbooks/supervisor/install.yml
 Which host or group would you like to assign [Default: empty]: node_mnsh
-# 下发使用supervisor启动platon的配置文件
+# 下发使用supervisor启动platon的配置文件，注意：命令中的[node_mnsh]需要修改为配置的集群名称
 $ ansible-playbook /etc/ansible/playbooks/supervisor/platon.yml
 Which host or group would you like to assign [Default: empty]: node_mnsh
 # Supervisor 启动，修改过配置文件，则用reload替换start
-$ ansible node -m node -a "supervisorctl reload"
+# 注意：命令中的[node_mnsh]需要修改为配置的集群名称
+$ ansible node_mnsh -m node -a "supervisorctl reload"
 ```
 
-5. 部署集群
+6. 部署集群
 
 ```bash
-# ansible-playbook /etc/ansible/playbooks/platon/deploy.yml
+# 注意：命令中的[node_mnsh]需要修改为配置的集群名称
+$ ansible-playbook /etc/ansible/playbooks/platon/deploy.yml
 Which host or group would you like to assign [Default: empty]: node_mnsh
 Which node name would you like to deploy [Default: empty]: platon
+```
+
+7. 清除集群
+
+```bash
+# 注意：命令中的[node_mnsh]需要修改为配置的集群名称
+$ ansible-playbook /etc/ansible/playbooks/platon/clean.yml
+Which host or group would you like to assign [Default: empty]: node_mnsh
+Which node name would you like to clean [Default: empty]: platon
 ```
 
 ### 启动压测
 
 1. 部署压测脚本
 
-从集群中选择1~3个节点作为压测插件节点（建议选择非共识节点），登陆节点所在主机，将压测脚本`private_keys.json` 上传到用户目录下，比如 `/home/pchuant/private_keys.json`
+   从集群中选择1~3个节点作为压测插件节点（建议选择非共识节点），登陆节点所在主机，将压测脚本`private_keys.json` 上传到用户目录下，比如 `/home/pchuant/private_keys.json`
 
 2. 执行压测命令
 
@@ -145,7 +196,7 @@ curl -H "Content-Type: application/json"   -X POST --data '{"jsonrpc":"2.0","met
 
 ### 代码分支
 
-本次测试EOS的代码分支为[master](https://github.com/EOSIO/eos/tree/master)，commitid:0d87dff8bee56179aa01472dd00a089b2aa7b9fa。
+本次测试EOS的代码分支为[master](https://github.com/EOSIO/eos/tree/master)，commitid:0d87dff8bee56179aa01472dd00a089b2aa7b9fa
 
 ### 编译和安装
 
