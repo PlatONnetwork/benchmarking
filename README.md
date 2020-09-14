@@ -152,7 +152,7 @@ $ ansible-playbook /etc/ansible/playbooks/supervisor/platon.yml
 Which host or group would you like to assign [Default: empty]: node_mnsh
 # Supervisor 启动，修改过配置文件，则用reload替换start
 # 注意：命令中的[node_mnsh]需要修改为配置的集群名称
-$ ansible node_mnsh -m node -a "supervisorctl reload"
+$ ansible node_mnsh -shell node -a "supervisorctl reload"
 ```
 
 6. 部署集群
