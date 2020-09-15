@@ -14,5 +14,5 @@
        #     - include: vimrc.yml
        #     - include: hostname.yml
        #     - include: secure_ssh.yml
-     - include: ssh_key.yml
+    # - include: ssh_key.yml
      - include: install_pkg.yml

@@ -35,7 +35,7 @@
         
     - name: "Sync genesis.json for {{ node_name }}"
       template:
-        src: "/etc/ansible/files/platon/mnsh/genesis.json"
+        src: "/etc/ansible/files/platon/genesis.json"
         dest: "{{ node_home }}"
         owner: "{{ app_user }}"
         group: "{{ app_user }}"
@@ -44,7 +44,7 @@
     - name: "Initialize {{ node_name }}"
       shell: "{{ node_bin }} --datadir {{ node_home }}/data init {{ node_home }}/genesis.json"
 
-    - name: "chown pchuant:pchuant /opt/platon/data"
+    - name: "chown {{ app_user }}:{{ app_user }} /opt/platon/data"
       file:
         path: /opt/platon/data
         recurse: yes
