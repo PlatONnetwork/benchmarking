@@ -202,19 +202,19 @@ curl -H "Content-Type: application/json"   -X POST --data '{"jsonrpc":"2.0","met
 
 1. clone代码
 
-本步骤请按官方指导完成，[参考](https://developers.eos.io/manuals/eos/latest/install/build-from-source/index)
+   本步骤请按官方指导完成，[参考](https://developers.eos.io/manuals/eos/latest/install/build-from-source/index)
 
 2. 替换插件文件
 
-请将`plugin/eosio/txn_test_gen_plugin.cpp`覆盖到`eos/plugins/txn_test_gen_plugin`
+   请将`plugin/eosio/txn_test_gen_plugin.cpp`覆盖到`eos/plugins/txn_test_gen_plugin`
 
 3. build&&install
 
-安装官网指导，完成eos的编译和安装，EOS默认安装在`~/eosio/2.0`， 以下操作中以此目录为默认路径，如果指定了其他路径请自行调整。
+   安装官网指导，完成eos的编译和安装，EOS默认安装在`~/eosio/2.0`， 以下操作中以此目录为默认路径，如果指定了其他路径请自行调整。
 
 4. 将安装好的EOS2.0同步到集群所有节点
 
-对于集群内的节点，可以在其中一台主机上编译并安装， 安装完成后将`~/eosio/2.0`和本仓库的`scripts\eosio\bin`目录打包压缩，然后通过scp分发到集群内的其他节点，可以通过ansible对集群内的所有节点进行解压：
+   对于集群内的节点，可以在其中一台主机上编译并安装， 安装完成后将`~/eosio/2.0`和本仓库的`scripts\eosio\bin`目录打包压缩，然后通过scp分发到集群内的其他节点，可以通过ansible对集群内的所有节点进行解压：
 
 ```
 ansible 集群名 -m shell -a "tar -zxvf ~/eosio.tar.gz -C ~"
@@ -222,15 +222,15 @@ ansible 集群名 -m shell -a "tar -zxvf ~/eosio.tar.gz -C ~"
 
 5. 添加环境变量
 
-为操作方便，可以将`~/eosio/2.0/bin`添加到系统`PATH`
-编辑`~/.bashrc`
+   为操作方便，可以将`~/eosio/2.0/bin`添加到系统`PATH`
+   编辑`~/.bashrc`
 
 ```
 export EOSHOME=$HOME/eosio
 export PATH=$PATH:$EOSHOME/2.0/bin
 ```
 
-然后执行以下命令使环境变量生效
+​	然后执行以下命令使环境变量生效
 
 ```
 source ~/.bashrc
@@ -242,7 +242,7 @@ source ~/.bashrc
 
 1. 生成hostsinfo
 
-编辑`/etc/ansible/files/keys/config/hosts`文件，添加需要部署EOS节点的IP（注意第一个IP将被默认设置未天使节点，即eosio节点），然后执行脚本：
+   编辑`/etc/ansible/files/keys/config/hosts`文件，添加需要部署EOS节点的IP（注意第一个IP将被默认设置未天使节点，即eosio节点），然后执行脚本：
 
 ```
 ./genhostsinfo.sh
@@ -250,21 +250,21 @@ source ~/.bashrc
 
 > 脚本中使用了默认的eosio公私钥，如果不想用默认值，请修改脚本替换
 
-执行完成后，将在当前路径生成`hostsinfo`文件。
+​	执行完成后，将在当前路径生成`hostsinfo`文件。
 
 2. 分发配置文件到集群
 
-在确保已经执行上述初始化环境步骤（主要是ansible配置scp免密）后，执行以下脚本：
+   在确保已经执行上述初始化环境步骤（主要是ansible配置scp免密）后，执行以下脚本：
 
 ```
 ./updatecfg.sh
 ```
 
-脚本将自动分发配置文件到各主机上
+​	脚本将自动分发配置文件到各主机上
 
 3. 创建钱包
 
-执行以下命令：
+   执行以下命令：
 
 ```
 cleos wallet create -n bench --to-console
@@ -273,11 +273,11 @@ cleos wallet create -n bench --to-console
 
 4. 编辑unlock.sh
 
-将上述步骤创建的钱包名及密码更新到`$HOME/eosio/bin/unlock.sh`脚本中。
+   将上述步骤创建的钱包名及密码更新到`$HOME/eosio/bin/unlock.sh`脚本中。
 
 5. 在天使节点上初始化
 
-初始化的步骤很简单，只需要在天使节点的`$HOME/eosio/bin`目录下执行：
+   初始化的步骤很简单，只需要在天使节点的`$HOME/eosio/bin`目录下执行：
 
 ```
  ./init.sh
@@ -285,14 +285,14 @@ cleos wallet create -n bench --to-console
 
 ### 启动集群
 
-执行以下命令：
+​	执行以下命令：
 
 ```
 ansible-playbook /etc/ansible/playbooks/eosio/start_producer.yml
 ```
 
-提示输入需要启动producer（超级节点）的集群
-完成后，执行以下命令以启动generator集群
+​	提示输入需要启动producer（超级节点）的集群
+​	完成后，执行以下命令以启动generator集群
 
 ```
 ansible-playbook /etc/ansible/playbooks/eosio/start_generator.yml
@@ -302,7 +302,7 @@ ansible-playbook /etc/ansible/playbooks/eosio/start_generator.yml
 
 1. 创建测试账户
 
-由于generator启动后需要加载独立的测试账户，在generator节点中需要执行以下命令以生成测试账户：
+   由于generator启动后需要加载独立的测试账户，在generator节点中需要执行以下命令以生成测试账户：
 
 ```
 $HOME/eosio/bin/creategenAccount.sh
@@ -310,13 +310,13 @@ $HOME/eosio/bin/creategenAccount.sh
 
 2. 质押和委托
 
-节点注册producer和vote都需要私钥签名交易，所以在执行脚本前请手动将各个节点producer的私钥导入天使节点的钱包（bench）
+   节点注册producer和vote都需要私钥签名交易，所以在执行脚本前请手动将各个节点producer的私钥导入天使节点的钱包（bench）
 
 ```
 cleos wallet import -n single --private-key  producer的私钥
 ```
 
-导入成功后，在天使节点执行以下命令使超级节点（producer）成为共识节点
+​	导入成功后，在天使节点执行以下命令使超级节点（producer）成为共识节点
 
 ```
 $HOME/eosio/bin/systeminit.sh
@@ -324,14 +324,14 @@ $HOME/eosio/bin/systeminit.sh
 
 3. 准备合约
 
-本次压测所需要的合约在`/benchmarking/contracts/eosio/eosio.contracts`，如果需要修改合约内容，请按[官方指导](https://developers.eos.io/manuals/eosio.cdt/latest/how-to-guides/compile/compile-a-contract-via-cli)对合约重新进行编译。
-在进行压测前，需要将待测合约的编译好（需有.abi文件和.wasm文件），本例中将合约放到`~/eosio//home/jht/eosio/eosio.contracts`，如果不使用此路径，需要自己修改`/etc/ansible/files/keys/config/generator.ini`,将`txn-test-gen-is-abiserializer`和`txn-test-gen-token-abiserializer`做适应修改。
+   本次压测所需要的合约在`/benchmarking/contracts/eosio/eosio.contracts`，如果需要修改合约内容，请按[官方指导](https://developers.eos.io/manuals/eosio.cdt/latest/how-to-guides/compile/compile-a-contract-via-cli)对合约重新进行编译。
+   在进行压测前，需要将待测合约的编译好（需有.abi文件和.wasm文件），本例中将合约放到`~/eosio//home/jht/eosio/eosio.contracts`，如果不使用此路径，需要自己修改`/etc/ansible/files/keys/config/generator.ini`,将`txn-test-gen-is-abiserializer`和`txn-test-gen-token-abiserializer`做适应修改。
 
-特别注意，天使节点（即第一个节点）必须用源码的方式编译eos和contracts，否则链初始化时会报找不到合约内容的错。
+   特别注意，天使节点（即第一个节点）必须用源码的方式编译eos和contracts，否则链初始化时会报找不到合约内容的错。
 
 4. 启动压测
 
-在generator节点中执行以下命令：
+   在generator节点中执行以下命令：
 
 ```
 curl --data-binary '["", 0, 20, 20]' http://127.0.0.1:6666/v1/txn_test_gen/start_generation
